@@ -1,12 +1,21 @@
 {% extends "base.html" %}
 {% block title %}Registrati{% endblock %}
 {% block content %}
-<div class="card">
-<h2>Registrati</h2>
-<form method="post">
-<input name="username" placeholder="username" required>
-<input name="password" type="password" placeholder="password" required>
-<button type="submit">Crea account</button>
-</form>
+<!-- Registrazione: alla creazione vengono impostati saldo 0 e limiti di default -->
+<div class="auth-wrap">
+  <div class="card auth-card">
+    <h1>Crea account</h1>
+    <p class="lead" style="margin:8px 0 0">Parti con CHF 0 di credito virtuale e i limiti di default (CHF 10/settimana, CHF 50/mese).</p>
+    <form method="post" class="stack">
+      <label>Username
+        <input name="username" placeholder="scegli un username" required>
+      </label>
+      <label>Password
+        <input name="password" type="password" placeholder="scegli una password" required>
+      </label>
+      <button class="btn" type="submit">Crea account</button>
+    </form>
+    <p class="sub" style="margin-top:14px">Hai già un account? <a href="{{ url_for('auth.login') }}">Accedi</a></p>
+  </div>
 </div>
 {% endblock %}

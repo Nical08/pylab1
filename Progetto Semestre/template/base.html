@@ -1,33 +1,45 @@
 <!DOCTYPE html>
+<!-- Layout base: navbar + flash + contenuto. Tutte le pagine estendono questo file. -->
 <html lang="it">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{% block title %}Progetto Semestre{% endblock %}</title>
+<meta name="theme-color" content="#080b16">
+<title>{% block title %}AI Gateway{% endblock %}</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
+<!-- Barra di navigazione: i link cambiano in base al login (current_user di Flask-Login) -->
 <nav>
-<a href="{{ url_for('index') }}">Home</a>
-<a href="{{ url_for('dashboard.dashboard') }}">Dashboard</a>
-<a href="{{ url_for('dashboard.docs') }}">Docs API</a>
-{% if current_user.is_authenticated %}
-<span>Ciao, {{ current_user.username }}</span>
-<a href="{{ url_for('auth.logout') }}">Logout</a>
-{% else %}
-<a href="{{ url_for('auth.login') }}">Login</a>
-<a href="{{ url_for('auth.register') }}">Registrati</a>
-{% endif %}
+  <a class="logo" href="{{ url_for('index') }}"><span class="dot"></span> AI Gateway</a>
+  <div class="nav-links">
+    <a class="nav-link {{ 'active' if request.endpoint == 'index' else '' }}" href="{{ url_for('index') }}">Home</a>
+    {% if current_user.is_authenticated %}
+    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard.dashboard' else '' }}" href="{{ url_for('dashboard.dashboard') }}">Dashboard</a>
+    {% endif %}
+    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard.docs' else '' }}" href="{{ url_for('dashboard.docs') }}">Docs API</a>
+  </div>
+  <div class="spacer"></div>
+  {% if current_user.is_authenticated %}
+    <span class="user">Ciao, {{ current_user.username }}</span>
+    <a class="btn ghost" href="{{ url_for('auth.logout') }}">Esci</a>
+  {% else %}
+    <a class="btn ghost" href="{{ url_for('auth.login') }}">Login</a>
+    <a class="btn" href="{{ url_for('auth.register') }}">Registrati</a>
+  {% endif %}
 </nav>
 <main>
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-<ul class="flash">
-{% for m in messages %}<li>{{ m }}</li>{% endfor %}
-</ul>
-{% endif %}
-{% endwith %}
-{% block content %}{% endblock %}
+  <!-- Messaggi flash (successi/errori): vengono consumati una sola volta -->
+  {% with messages = get_flashed_messages() %}
+  {% if messages %}
+  <div class="flashes">
+    {% for m in messages %}<div class="flash">{{ m }}</div>{% endfor %}
+  </div>
+  {% endif %}
+  {% endwith %}
+  <!-- Qui va il contenuto specifico di ogni pagina -->
+  {% block content %}{% endblock %}
 </main>
+<footer>AI Gateway — progetto Flask · credito e pagamenti simulati</footer>
 </body>
 </html>

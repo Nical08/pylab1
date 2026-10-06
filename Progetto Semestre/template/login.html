@@ -1,13 +1,21 @@
 {% extends "base.html" %}
 {% block title %}Login{% endblock %}
 {% block content %}
-<div class="card">
-<h2>Login</h2>
-<form method="post">
-<input name="username" placeholder="username" required>
-<input name="password" type="password" placeholder="password" required>
-<button type="submit">Entra</button>
-</form>
-<p>Non hai account? <a href="{{ url_for('auth.register') }}">Registrati</a></p>
+<!-- Pagina di login: form semplice che invia username/password via POST -->
+<div class="auth-wrap">
+  <div class="card auth-card">
+    <h1>Bentornato</h1>
+    <p class="lead" style="margin:8px 0 0">Accedi per gestire API key, saldo e limiti di spesa.</p>
+    <form method="post" class="stack">
+      <label>Username
+        <input name="username" placeholder="il tuo username" required>
+      </label>
+      <label>Password
+        <input name="password" type="password" placeholder="la tua password" required>
+      </label>
+      <button class="btn" type="submit">Accedi</button>
+    </form>
+    <p class="sub" style="margin-top:14px">Non hai un account? <a href="{{ url_for('auth.register') }}">Registrati</a></p>
+  </div>
 </div>
 {% endblock %}

@@ -1,12 +1,182 @@
-body { font-family: system-ui, sans-serif; margin: 0; background: #f6f6f6; color: #222; }
-nav { background: #222; padding: 12px; display: flex; gap: 12px; align-items: center; }
-nav a { color: white; text-decoration: none; }
-nav span { color: #ccc; margin-left: auto; }
-main { max-width: 800px; margin: 24px auto; padding: 0 16px; }
-.card { background: white; padding: 16px; border-radius: 8px; margin: 12px 0; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
-form { display: flex; flex-direction: column; gap: 8px; max-width: 320px; }
-input, button { padding: 8px; font-size: 1rem; }
-button { background: #222; color: white; border: 0; border-radius: 4px; cursor: pointer; }
-.flash { background: #fff3cd; padding: 12px; border-radius: 4px; list-style: none; }
-code { background: #eee; padding: 2px 4px; border-radius: 4px; }
-pre { background: #222; color: #eee; padding: 12px; border-radius: 4px; overflow-x: auto; }
+/* ============================================================
+   AI Gateway — foglio di stile unico (tema scuro "Midnight Glass")
+   Organizzato per sezioni: variabili, layout, navbar, card,
+   grafico, tabelle, form, docs.
+   ============================================================ */
+
+/* --- Variabili globali (colori e raggio) --- */
+:root{
+  --bg:#080b16;                        /* sfondo base */
+  --surface:rgba(255,255,255,.055);    /* superficie delle card */
+  --surface2:rgba(255,255,255,.08);    /* superficie più chiara */
+  --line:rgba(255,255,255,.11);        /* bordi */
+  --text:#e8ebf7;                      /* testo principale */
+  --muted:#8e9bbd;                     /* testo secondario */
+  --acc1:#6d7cff;                      /* accento 1 (blu-viola) */
+  --acc2:#c084fc;                      /* accento 2 (lilla) */
+  --ok:#4ade80;                        /* verde (successo) */
+  --warn:#fbbf24;                      /* giallo (avviso) */
+  --bad:#f87171;                       /* rosso (errore) */
+  --r:18px;                            /* raggio di default */
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  /* Sfondo con due bagliori radiali per l'effetto "vetro" */
+  background:
+    radial-gradient(900px 500px at 85% -10%, rgba(109,124,255,.22), transparent 60%),
+    radial-gradient(700px 400px at -10% 20%, rgba(192,132,252,.14), transparent 55%),
+    var(--bg);
+  background-attachment:fixed;
+  color:var(--text);
+  min-height:100vh;
+}
+a{color:var(--acc2);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* --- Navbar sticky --- */
+nav{
+  position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:22px;
+  padding:14px 28px;background:rgba(8,11,22,.72);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);flex-wrap:wrap;
+}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;color:var(--text)}
+.logo:hover{text-decoration:none}
+.dot{width:11px;height:11px;border-radius:50%;background:linear-gradient(135deg,var(--acc1),var(--acc2));box-shadow:0 0 14px rgba(109,124,255,.8)}
+.nav-links{display:flex;gap:18px;align-items:center}
+nav a.nav-link{color:var(--muted);font-size:14px}
+nav a.nav-link.active{color:#fff;font-weight:600}
+.spacer{margin-left:auto}
+.user{font-size:13px;color:var(--muted)}
+
+/* --- Bottoni --- */
+.btn{
+  display:inline-block;border:0;border-radius:10px;padding:9px 16px;font-size:13px;
+  font-weight:600;cursor:pointer;color:#0a0d1a;
+  background:linear-gradient(135deg,var(--acc1),var(--acc2));
+  text-decoration:none;text-align:center;
+}
+.btn:hover{filter:brightness(1.08);text-decoration:none}
+.btn.ghost{background:var(--surface);color:var(--text);border:1px solid var(--line)}
+.btn.ghost:hover{border-color:rgba(255,255,255,.28)}
+
+/* --- Contenitore principale e footer --- */
+main{max-width:1120px;margin:28px auto;padding:0 24px;display:grid;gap:20px}
+footer{
+  max-width:1120px;margin:8px auto 40px;padding:0 24px;
+  color:var(--muted);font-size:12px;text-align:center;
+}
+
+/* --- Messaggi flash --- */
+.flashes{display:grid;gap:10px}
+.flash{
+  display:flex;gap:10px;align-items:center;
+  background:rgba(109,124,255,.12);border:1px solid rgba(109,124,255,.4);
+  color:#dfe3ff;border-radius:12px;padding:12px 16px;font-size:13px;
+  word-break:break-all;   /* la API key generata è lunga: va a capo */
+}
+
+/* --- Card e griglie responsive --- */
+.card{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+  padding:20px;backdrop-filter:blur(10px);
+}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.cols{display:grid;grid-template-columns:1.35fr 1fr;gap:16px}
+@media(max-width:860px){.cols{grid-template-columns:1fr}}
+
+/* --- Tipografia --- */
+h1{font-size:clamp(26px,4vw,40px);line-height:1.1;letter-spacing:-.02em}
+h2{font-size:15px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+h3{font-size:15px;margin-bottom:8px}
+h4{font-size:14px;margin-bottom:6px}
+.tag{
+  font-size:10px;font-weight:700;color:var(--acc2);
+  border:1px solid rgba(192,132,252,.45);border-radius:99px;padding:2px 9px;letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.label{font-size:11px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;font-weight:600}
+.big{font-size:30px;font-weight:800;margin:6px 0 2px}
+.big .of{font-size:15px;font-weight:600;color:var(--muted)}
+.sub{font-size:12px;color:var(--muted)}
+.lead{font-size:15px;color:var(--muted);max-width:620px;line-height:1.6;margin:12px 0 18px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+/* Barra di avanzamento dei limiti di spesa */
+.bar{height:8px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden;margin-top:12px}
+.bar > div{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--acc1),var(--acc2))}
+.delta{color:var(--ok);font-size:12px;font-weight:600}
+
+/* --- Home: hero, icone feature, card modelli --- */
+.hero{padding:34px}
+.hero .row{margin-top:6px}
+.feature-icon{
+  width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,rgba(109,124,255,.25),rgba(192,132,252,.25));
+  border:1px solid rgba(109,124,255,.45);margin-bottom:12px;
+}
+.feature-icon svg{width:18px;height:18px;stroke:#cfd6ff}
+
+.model{
+  border:1px solid var(--line);border-radius:14px;padding:16px;
+  background:rgba(255,255,255,.03);display:flex;flex-direction:column;gap:8px;
+}
+.model .mono{
+  font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:11px;
+  color:var(--acc2);word-break:break-all;margin-top:auto;
+}
+.model p{font-size:12px;color:var(--muted);line-height:1.5}
+
+/* --- Grafico a barre dei consumi (solo CSS) --- */
+.chart{display:flex;align-items:flex-end;gap:12px;height:170px;padding-top:8px}
+.chart .col{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:flex-end}
+.chart .b{width:100%;border-radius:8px 8px 4px 4px;background:linear-gradient(180deg,var(--acc2),var(--acc1));opacity:.9}
+.chart .b.dim{background:rgba(255,255,255,.16)}   /* giorno senza spesa */
+.chart .d{font-size:11px;color:var(--muted)}
+.chart .v{font-size:10px;color:var(--muted)}
+
+/* --- Tabelle (storico richieste, modelli, errori) --- */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--line)}
+td{padding:10px;border-bottom:1px solid rgba(255,255,255,.06)}
+tr:last-child td{border-bottom:0}
+.pill{display:inline-block;font-size:11px;padding:3px 9px;border-radius:99px;border:1px solid var(--line);color:var(--muted);background:var(--surface2)}
+.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px}
+.empty{padding:18px 4px;font-size:13px;color:var(--muted)}
+
+/* --- Form (auth, limiti, saldo, ...) --- */
+form.stack{display:grid;gap:12px;margin-top:14px}
+form.stack label{display:grid;gap:6px;font-size:12px;color:var(--muted);font-weight:600}
+form.row-form{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+form.row-form input{flex:1;min-width:120px}
+input{
+  padding:11px 13px;border-radius:10px;border:1px solid var(--line);
+  background:rgba(255,255,255,.05);color:var(--text);font-size:13px;width:100%;
+}
+input:focus{outline:none;border-color:rgba(109,124,255,.7);box-shadow:0 0 0 3px rgba(109,124,255,.18)}
+input::placeholder{color:#6b7694}
+
+/* --- Pagine login/registrazione (card centrata) --- */
+.auth-wrap{display:flex;justify-content:center;padding:24px 0}
+.auth-card{width:100%;max-width:420px;padding:30px}
+
+/* --- Lista API key --- */
+.keyrow{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:13px;flex-wrap:wrap}
+.keyrow:last-child{border-bottom:0}
+.keyrow .meta{margin-left:auto}
+.link-danger{
+  background:none;border:0;color:var(--bad);font-size:12px;cursor:pointer;padding:0;
+}
+.link-danger:hover{text-decoration:underline}
+
+/* --- Blocchi codice e docs --- */
+pre{
+  background:rgba(0,0,0,.42);border:1px solid var(--line);border-radius:12px;
+  padding:14px;overflow-x:auto;font-size:12px;line-height:1.6;margin:10px 0;
+}
+pre code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:#dfe3ff}
+.inline-code{
+  font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;
+  background:var(--surface2);border:1px solid var(--line);border-radius:6px;padding:2px 6px;
+}
+.section-gap{display:grid;gap:20px}

@@ -7,10 +7,16 @@ from model.db import db
 from model.key import ApiKey
 from model.user import User
 
+# Endpoint "semplici" (/api/...) autenticati con header X-API-Key.
+# Il gateway compatibile OpenAI sta invece in api/v1.py (/api/v1/...).
 api_bp = Blueprint('api', __name__, url_prefix='/api')
 
 
 def require_api_key(f):
+    """Decorator: autentica la richiesta tramite header X-API-Key.
+
+    Cerca la key per hash (mai in chiaro) e passa l'utente alla funzione.
+    """
     @wraps(f)
     def decorated(*args, **kwargs):
         raw = request.headers.get('X-API-Key', '')
@@ -30,6 +36,7 @@ def require_api_key(f):
 @api_bp.route('/balance', methods=['GET'])
 @require_api_key
 def api_balance(user):
+    """Ritorna il saldo virtuale dell'utente della key."""
     amount = float(user.balance.amount) if user.balance else 0.0
     return jsonify({"username": user.username, "balance": f"{amount:.2f}"})
 
@@ -37,6 +44,7 @@ def api_balance(user):
 @api_bp.route('/add', methods=['POST'])
 @require_api_key
 def api_add(user):
+    """Aggiunge credito virtuale (ricarica simulata)."""
     data = request.get_json(silent=True) or {}
     try:
         amount = float(data.get('amount', 0))

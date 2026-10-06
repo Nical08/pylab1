@@ -1,0 +1,25 @@
+# Dipendenze del progetto (installa con: pip install -r requirements.txt)
+
+# Web framework e database
+Flask>=3.0
+Flask-SQLAlchemy>=3.1
+Flask-Migrate>=4.0          # migrazioni del database (Alembic)
+
+# Autenticazione utenti web
+Flask-Login>=0.6
+
+# Configurazione tramite .env
+python-dotenv>=1.0
+
+# Chiamate HTTP a NVIDIA NIM
+requests>=2.31
+
+# SDK OpenAI (per l'esempio di compatibilità nei docs)
+openai>=1.0
+
+# Utility (hash password) usata da Flask
+Werkzeug>=3.0
+
+# Test automatici (API e UI)
+pytest>=8.0
+selenium>=4.15

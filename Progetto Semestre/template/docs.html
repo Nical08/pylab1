@@ -1,12 +1,104 @@
 {% extends "base.html" %}
 {% block title %}Docs API{% endblock %}
 {% block content %}
+
+<section class="card hero">
+  <span class="tag">Documentazione</span>
+  <h1>API compatibile con l'SDK OpenAI</h1>
+  <p class="lead">Autenticazione con <span class="inline-code">Authorization: Bearer &lt;API key&gt;</span> (crea la key dalla dashboard). Base URL: <span class="inline-code">http://localhost:5000/api/v1</span></p>
+</section>
+
+<!-- Tabella dei modelli attivi con prezzi, caricati dal DB -->
 <div class="card">
-<h2>Docs API</h2>
-<p>Usa header <code>X-API-Key</code>.</p>
-<h3>GET /api/balance</h3>
-<pre><code>curl -H "X-API-Key: &lt;key&gt;" http://localhost:5000/api/balance</code></pre>
-<h3>POST /api/add</h3>
-<pre><code>curl -X POST -H "Content-Type: application/json" -H "X-API-Key: &lt;key&gt;" -d '{"amount": 10}' http://localhost:5000/api/add</code></pre>
+  <h2>Modelli disponibili</h2>
+  <table>
+    <tr><th>ID modello</th><th>Nome</th><th>Input / 1M</th><th>Output / 1M</th></tr>
+    {% for m in models %}
+    <tr>
+      <td class="mono">{{ m.name }}</td>
+      <td>{{ m.display_name }}</td>
+      <td class="mono">CHF {{ '%.2f'|format(m.input_price) }}</td>
+      <td class="mono">CHF {{ '%.2f'|format(m.output_price) }}</td>
+    </tr>
+    {% endfor %}
+  </table>
 </div>
+
+<!-- Endpoint lista modelli: comandi per i vari sistemi operativi -->
+<div class="card">
+  <h2>GET /api/v1/models</h2>
+  <p class="sub">Elenca i modelli attivi.</p>
+  <p class="label" style="margin-top:10px">Windows (CMD) — tutto su una riga</p>
+  <pre><code>curl http://localhost:5000/api/v1/models -H "Authorization: Bearer &lt;key&gt;"</code></pre>
+  <p class="label" style="margin-top:10px">Linux / macOS</p>
+  <pre><code>curl http://localhost:5000/api/v1/models \
+  -H "Authorization: Bearer &lt;key&gt;"</code></pre>
+</div>
+
+<!-- Endpoint chat: comandi per i vari sistemi operativi -->
+<div class="card">
+  <h2>POST /api/v1/chat/completions</h2>
+  <p class="sub">Invia una chat e riceve la risposta del modello. Registra token, costo e scala il saldo virtuale.</p>
+  <p class="label" style="margin-top:10px">Windows (CMD) — tutto su una riga</p>
+  <pre><code>curl -X POST http://localhost:5000/api/v1/chat/completions -H "Authorization: Bearer &lt;key&gt;" -H "Content-Type: application/json" -d "{\"model\": \"nvidia/nemotron-3-super-120b-a12b\", \"messages\": [{\"role\": \"user\", \"content\": \"Ciao!\"}]}"</code></pre>
+  <p class="label" style="margin-top:10px">Windows (PowerShell)</p>
+  <pre><code>$body = '{"model": "nvidia/nemotron-3-super-120b-a12b", "messages": [{"role": "user", "content": "Ciao!"}]}'
+Invoke-RestMethod -Uri http://localhost:5000/api/v1/chat/completions -Method Post `
+  -Headers @{Authorization = "Bearer &lt;key&gt;"} -ContentType "application/json" -Body $body</code></pre>
+  <p class="label" style="margin-top:10px">Linux / macOS</p>
+  <pre><code>curl http://localhost:5000/api/v1/chat/completions \
+  -H "Authorization: Bearer &lt;key&gt;" \
+  -H "Content-Type: application/json" \
+  -d '{"model": "nvidia/nemotron-3-super-120b-a12b",
+       "messages": [{"role": "user", "content": "Ciao!"}]}'</code></pre>
+</div>
+
+<!-- Esempio con l'SDK ufficiale OpenAI: basta cambiare base_url -->
+<div class="card">
+  <h2>SDK OpenAI (Python)</h2>
+  <pre><code>from openai import OpenAI
+
+client = OpenAI(
+    api_key="&lt;key&gt;",
+    base_url="http://localhost:5000/api/v1"
+)
+
+response = client.chat.completions.create(
+    model="nvidia/nemotron-3-super-120b-a12b",
+    messages=[{"role": "user", "content": "Spiegami Flask"}]
+)
+
+print(response.choices[0].message.content)</code></pre>
+</div>
+
+<!-- Streaming: consigliato per risposte lunghe (i token arrivano subito) -->
+<div class="card">
+  <h2>Streaming (consigliato)</h2>
+  <p class="sub">Con <span class="inline-code">stream=True</span> i token arrivano subito e non si rischia il timeout su risposte lunghe. Consumi e costo vengono registrati a fine stream.</p>
+  <pre><code>stream = client.chat.completions.create(
+    model="nvidia/nemotron-3-super-120b-a12b",
+    messages=[{"role": "user", "content": "Scrivi una poesia su Flask"}],
+    stream=True
+)
+
+for chunk in stream:
+    print(chunk.choices[0].delta.content or "", end="")</code></pre>
+  <p class="label" style="margin-top:10px">curl (Windows CMD)</p>
+  <pre><code>curl -N -X POST http://localhost:5000/api/v1/chat/completions -H "Authorization: Bearer &lt;key&gt;" -H "Content-Type: application/json" -d "{\"model\": \"nvidia/nemotron-3-super-120b-a12b\", \"stream\": true, \"messages\": [{\"role\": \"user\", \"content\": \"Ciao!\"}]}"</code></pre>
+</div>
+
+<!-- Tabella riassuntiva degli errori possibili -->
+<div class="card">
+  <h2>Errori</h2>
+  <table>
+    <tr><th>Status</th><th>Codice</th><th>Significato</th></tr>
+    <tr><td class="mono">401</td><td class="mono">invalid_api_key</td><td>API key mancante o non valida</td></tr>
+    <tr><td class="mono">402</td><td class="mono">weekly_limit_exceeded</td><td>Limite settimanale superato</td></tr>
+    <tr><td class="mono">402</td><td class="mono">monthly_limit_exceeded</td><td>Limite mensile superato</td></tr>
+    <tr><td class="mono">402</td><td class="mono">insufficient_balance</td><td>Saldo virtuale insufficiente</td></tr>
+    <tr><td class="mono">404</td><td class="mono">model_not_found</td><td>Modello inesistente o disattivato</td></tr>
+    <tr><td class="mono">502</td><td class="mono">nim_error</td><td>Errore dal servizio NVIDIA NIM</td></tr>
+  </table>
+</div>
+
 {% endblock %}

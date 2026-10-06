@@ -1,8 +1,60 @@
 {% extends "base.html" %}
-{% block title %}Home{% endblock %}
+{% block title %}AI Gateway — un'unica API per i modelli AI{% endblock %}
 {% block content %}
-<div class="card">
-<h2>Progetto Semestre</h2>
-<p>Gestisci saldo e API key. Vai alla <a href="{{ url_for('dashboard.dashboard') }}">Dashboard</a> o leggi i <a href="{{ url_for('dashboard.docs') }}">Docs API</a>.</p>
-</div>
+<!-- Hero: presentazione del servizio + call to action -->
+<section class="card hero">
+  <span class="tag">OpenAI-compatible API</span>
+  <h1>Un'unica API per tutti i modelli AI</h1>
+  <p class="lead">Registrati, genera una API key e usa i modelli NVIDIA NIM con l'SDK OpenAI che già conosci. Credito virtuale, limiti di spesa e storico dell'utilizzo inclusi.</p>
+  <div class="row">
+    {% if current_user.is_authenticated %}
+    <a class="btn" href="{{ url_for('dashboard.dashboard') }}">Vai alla dashboard</a>
+    {% else %}
+    <a class="btn" href="{{ url_for('auth.register') }}">Inizia ora</a>
+    {% endif %}
+    <a class="btn ghost" href="{{ url_for('dashboard.docs') }}">Documentazione</a>
+  </div>
+</section>
+
+<!-- Tre punti di forza del progetto -->
+<section class="grid3">
+  <div class="card">
+    <div class="feature-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M4 12h6l2-5 4 10 2-5h2"/></svg>
+    </div>
+    <h3>API compatibile OpenAI</h3>
+    <p class="sub">Cambi solo <span class="inline-code">base_url</span> e API key: il tuo codice con il client OpenAI continua a funzionare.</p>
+  </div>
+  <div class="card">
+    <div class="feature-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M12 3l7 4v5c0 4.5-3 8-7 9-4-1-7-4.5-7-9V7z"/></svg>
+    </div>
+    <h3>Credito e limiti</h3>
+    <p class="sub">Saldo virtuale simulato, limiti settimanali e mensili: le richieste si bloccano da sole quando superi il budget.</p>
+  </div>
+  <div class="card">
+    <div class="feature-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+    </div>
+    <h3>Utilizzo trasparente</h3>
+    <p class="sub">Ogni richiesta salva token e costo: grafico degli ultimi 7 giorni e storico completo nella dashboard.</p>
+  </div>
+</section>
+
+<!-- Lista dei modelli attivi, caricata dal database (passata dalla route index) -->
+<section class="card">
+  <h2>Modelli disponibili <span class="tag">{{ models|length }} attivi</span></h2>
+  <div class="grid3">
+    {% for m in models %}
+    <div class="model">
+      <h4>{{ m.display_name }}</h4>
+      <p>{{ m.description }}</p>
+      <span class="sub">Input CHF {{ '%.2f'|format(m.input_price) }} / 1M · Output CHF {{ '%.2f'|format(m.output_price) }} / 1M</span>
+      <span class="mono">{{ m.name }}</span>
+    </div>
+    {% else %}
+    <p class="empty">Nessun modello attivo.</p>
+    {% endfor %}
+  </div>
+</section>
 {% endblock %}

@@ -1,24 +1,117 @@
 {% extends "base.html" %}
 {% block title %}Dashboard{% endblock %}
 {% block content %}
-<div class="card">
-<h2>Saldo: {{ balance }}</h2>
-<form action="{{ url_for('dashboard.add_balance') }}" method="post">
-<input name="amount" type="number" step="0.01" min="0.01" placeholder="10.00" required>
-<button type="submit">Aggiungi saldo</button>
-</form>
+
+<!-- Statistiche principali: saldo, spesa settimanale/mensile, richieste -->
+<div class="grid4">
+  <div class="card">
+    <div class="label">Saldo virtuale</div>
+    <div class="big">CHF {{ '%.2f'|format(balance) }}</div>
+    <div class="sub">credito simulato, nessuna carta reale</div>
+  </div>
+  <div class="card">
+    <div class="label">Spesa settimana</div>
+    <div class="big">CHF {{ '%.2f'|format(spent_week) }} <span class="of">/ {{ '%.2f'|format(weekly_limit) }}</span></div>
+    <!-- Barra percentuale calcolata nel backend (week_pct) -->
+    <div class="bar"><div style="width:{{ week_pct }}%"></div></div>
+  </div>
+  <div class="card">
+    <div class="label">Spesa mese</div>
+    <div class="big">CHF {{ '%.2f'|format(spent_month) }} <span class="of">/ {{ '%.2f'|format(monthly_limit) }}</span></div>
+    <div class="bar"><div style="width:{{ month_pct }}%"></div></div>
+  </div>
+  <div class="card">
+    <div class="label">Richieste API</div>
+    <div class="big">{{ total_requests }}</div>
+    <div class="delta">+{{ today_requests }} oggi</div>
+  </div>
 </div>
-<div class="card">
-<h3>API Key</h3>
-<form action="{{ url_for('dashboard.gen_api_key') }}" method="post">
-<button type="submit">Genera nuova key</button>
-</form>
-{% if keys %}
-<ul>
-{% for k in keys %}<li>#{{ k.id }} - {{ k.created_at }} - {{ k.api_key_hash[:12] }}...</li>{% endfor %}
-</ul>
-{% else %}
-<p>Nessuna key ancora.</p>
-{% endif %}
+
+<div class="cols">
+  <!-- Grafico a barre degli ultimi 7 giorni (dati e altezze dal backend) -->
+  <div class="card">
+    <h2>Spesa ultimi 7 giorni <span class="tag">CHF</span></h2>
+    <div class="chart">
+      {% for p in chart %}
+      <div class="col">
+        <span class="v">{{ '%.2f'|format(p.value) if p.value else '—' }}</span>
+        <div class="b {{ 'dim' if not p.value else '' }}" style="height:{{ p.h }}%"></div>
+        <span class="d">{{ p.label }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Form per modificare i limiti di spesa -->
+  <div class="card">
+    <h2>Limiti di spesa</h2>
+    <form class="row-form" action="{{ url_for('dashboard.set_limits') }}" method="post">
+      <input name="weekly_limit" type="number" step="0.01" min="0.01"
+             value="{{ weekly_limit }}" placeholder="settimanale" required>
+      <input name="monthly_limit" type="number" step="0.01" min="0.01"
+             value="{{ monthly_limit }}" placeholder="mensile" required>
+      <button class="btn" type="submit">Salva</button>
+    </form>
+    <div class="sub" style="margin-top:10px">Le richieste vengono bloccate con errore 402 quando superi il budget.</div>
+  </div>
 </div>
+
+<!-- Storico delle ultime 10 richieste API -->
+<div class="card">
+  <h2>Ultime richieste API</h2>
+  {% if recent %}
+  <table>
+    <tr><th>Data</th><th>Modello</th><th>Token</th><th>Costo</th></tr>
+    {% for u in recent %}
+    <tr>
+      <td class="mono">{{ u.created_at.strftime('%d.%m %H:%M') }}</td>
+      <td>{{ u.model.display_name if u.model else '—' }}</td>
+      <td>{{ u.total_tokens }}</td>
+      <td class="mono">CHF {{ '%.6f'|format(u.cost) }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <p class="empty">Nessuna richiesta ancora. Genera una API key e usa il client OpenAI sui docs.</p>
+  {% endif %}
+</div>
+
+<div class="cols">
+  <!-- Gestione API key: creazione e lista con eliminazione -->
+  <div class="card">
+    <h2>Le tue API key</h2>
+    <form action="{{ url_for('dashboard.gen_api_key') }}" method="post">
+      <button class="btn" type="submit">+ Genera nuova key</button>
+    </form>
+    {% if keys %}
+    <div style="margin-top:14px">
+      {% for k in keys %}
+      <div class="keyrow">
+        <span class="pill">#{{ k.id }}</span>
+        <!-- Mostriamo solo l'hash troncato: la chiave completa si vede una volta sola -->
+        <span class="mono">{{ k.api_key_hash[:12] }}...</span>
+        <span class="sub meta">creata {{ k.created_at.strftime('%d.%m %H:%M') }}</span>
+        <form method="post" action="{{ url_for('dashboard.delete_api_key', key_id=k.id) }}"
+              onsubmit="return confirm('Eliminare questa API key?');" style="display:inline">
+          <button class="link-danger" type="submit">Elimina</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="empty">Nessuna key ancora.</p>
+    {% endif %}
+  </div>
+
+  <!-- Ricarica simulata del saldo -->
+  <div class="card">
+    <h2>Ricarica saldo virtuale</h2>
+    <form class="row-form" action="{{ url_for('dashboard.add_balance') }}" method="post">
+      <input name="amount" type="number" step="0.01" min="0.01" placeholder="es. 25.00" required>
+      <button class="btn" type="submit">Aggiungi CHF</button>
+    </form>
+    <div class="sub" style="margin-top:10px">Simulazione: nessun pagamento reale.</div>
+  </div>
+</div>
+
 {% endblock %}
