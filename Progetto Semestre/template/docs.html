@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Docs API{% endblock %}
+{% block content %}
+<div class="card">
+<h2>Docs API</h2>
+<p>Usa header <code>X-API-Key</code>.</p>
+<h3>GET /api/balance</h3>
+<pre><code>curl -H "X-API-Key: &lt;key&gt;" http://localhost:5000/api/balance</code></pre>
+<h3>POST /api/add</h3>
+<pre><code>curl -X POST -H "Content-Type: application/json" -H "X-API-Key: &lt;key&gt;" -d '{"amount": 10}' http://localhost:5000/api/add</code></pre>
+</div>
+{% endblock %}
